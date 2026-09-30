@@ -1,0 +1,1306 @@
+<!doctype html>
+<html lang="ru" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="description" content="Калькулятор расположения телевизора на поворотном кронштейне и выбора диагонали по расстоянию до глаз.">
+<title>Поворот телевизора — калькулятор</title>
+<style>:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+:root:not([data-app-block-surface], [data-visualize-standalone]) > body {
+  padding: 12px;
+}
+
+.cursor-interaction {
+  cursor: var(--cursor-interaction, pointer);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: var(--cursor-interaction, pointer);
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  box-shadow: 0 0 0 0.5px var(--border-strong, var(--border));
+  color: var(--foreground);
+  background: var(--background);
+}
+
+#widget > :not(.card, .widget, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The shared runtime owns data-tooltip; suppress AppBlock's pseudo-tooltip. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled="true"]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* Shared preview chrome; product styles stay inside each variant. */
+.viz-dotted-background {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--foreground) 14%, transparent) 0.8px,
+    transparent 0.8px
+  );
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.viz-carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.viz-carousel:has(> .viz-carousel-controls) {
+  min-height: calc(60px + var(--viz-carousel-picker-height, 0px));
+  padding-bottom: 60px;
+}
+
+.viz-carousel > [data-variant][hidden] {
+  display: none !important;
+}
+
+.viz-carousel > [data-variant] {
+  isolation: isolate;
+}
+
+.viz-carousel-controls {
+  --viz-carousel-hover: light-dark(
+    color-mix(in srgb, var(--foreground) 5.4%, transparent),
+    color-mix(in srgb, var(--foreground) 7.8%, transparent)
+  );
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  /* Leave room for the host's design-controls launcher at the trailing edge. */
+  max-width: calc(100% - 96px);
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  /* Match the settings dropdown chrome independently of the content font size. */
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+/* Keep authored mockup button styles out of the shared carousel chrome. */
+.viz-carousel-controls button,
+.viz-carousel-picker > summary {
+  display: flex !important;
+  height: auto !important;
+  min-height: 30px;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  padding: 0 6px !important;
+  -webkit-app-region: no-drag;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: inherit !important;
+  background: transparent !important;
+  font: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viz-carousel-controls > button,
+.viz-carousel-picker > summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.viz-carousel-controls > button {
+  --icon-size: 16px;
+  width: 30px !important;
+  padding: 0 !important;
+}
+
+.viz-carousel-picker > summary {
+  padding-inline: 12px !important;
+}
+
+.viz-carousel-controls .viz-carousel-caret {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin: 0;
+  color: inherit;
+  transform: rotate(180deg);
+}
+
+.viz-carousel-controls > button > svg,
+.viz-carousel-controls .viz-carousel-caret,
+.viz-carousel-count {
+  opacity: 0.5;
+}
+
+.viz-carousel-controls > button::before,
+.viz-carousel-picker > summary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  border-radius: 12px;
+  content: "";
+  pointer-events: none;
+}
+
+.viz-carousel-controls > button:hover::before,
+.viz-carousel-picker > summary:hover::before {
+  background: var(--viz-carousel-hover);
+}
+
+.viz-carousel-controls > button,
+.viz-carousel-controls [data-lucide],
+.viz-carousel-controls .lucide {
+  flex-shrink: 0;
+}
+
+.viz-carousel-picker {
+  min-width: 0;
+}
+
+.viz-carousel-picker > summary {
+  min-width: 0;
+  list-style: none;
+}
+
+.viz-carousel-picker > summary::-webkit-details-marker {
+  display: none;
+}
+
+.viz-carousel-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.viz-carousel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viz-carousel-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 25%));
+}
+
+.viz-carousel-options > button {
+  border-radius: max(0px, calc(var(--radius-lg) - 5px)) !important;
+  width: 100% !important;
+  min-height: 28px;
+  justify-content: flex-start !important;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-small) !important;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.viz-carousel-options > [aria-current="true"],
+.viz-carousel-options > button:hover {
+  background: var(--viz-carousel-hover) !important;
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed="true"],
+  [aria-selected="true"],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.viz-carousel-controls :is(button, summary):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+@media (pointer: coarse) {
+  .viz-carousel:has(> .viz-carousel-controls) {
+    min-height: calc(76px + var(--viz-carousel-picker-height, 0px));
+    padding-bottom: 76px;
+  }
+
+  .btn,
+  .nav-link,
+  .viz-carousel-controls button,
+  .viz-carousel-picker > summary,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type="file"]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type="color"] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html>body{padding:0}</style>
+<style>body{margin:0;padding:24px;font-family:system-ui,sans-serif;font-size:16px}#tv-angle-calculator{max-width:1100px;margin:auto}#tv-angle-calculator .viz-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}#tv-angle-calculator #plans{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}#tv-angle-calculator .form-label{font-size:14px}#tv-angle-calculator .metrics{font-size:14px}#tv-angle-calculator section{border-top:1px solid var(--border);padding-top:12px}#tv-angle-calculator h3{font-weight:600}#tv-angle-calculator>h3{font-size:26px}#tv-angle-calculator .form-control{width:100%;box-sizing:border-box;font-size:18px;padding:10px}#tv-angle-calculator>p{line-height:1.6;color:var(--muted-foreground)}@media(max-width:650px){body{padding:16px}#tv-angle-calculator #plans{grid-template-columns:1fr}}</style><style>:root{color-scheme:light!important;--background:#ffffff;--foreground:#17212b;--card:#ffffff;--card-foreground:#17212b;--muted:#f1f4f7;--muted-foreground:#526171;--border:#d7dfe7;--input:#d7dfe7;--primary:#17212b;--primary-foreground:#ffffff;--viz-series-1:#087ea4;--viz-series-2:#bf4b18}html,body{background:#fff!important;color:#17212b!important}input{background:#fff!important;color:#17212b!important}input:disabled{background:#f1f4f7!important;color:#637181!important}</style><style>#tv-angle-calculator .scenario-heading{grid-column:1/-1;margin-top:16px}#tv-angle-calculator .scenario-heading h2{font-size:24px;margin:0 0 8px}#tv-angle-calculator .scenario-heading p{margin:0;color:#526171;font-size:14px}#tv-angle-calculator .blocked{color:#bd2028!important;font-weight:600}#tv-angle-calculator .reasons{font-size:14px;margin-top:8px;line-height:1.5}#tv-angle-calculator .available{color:#16634f}#tv-angle-calculator .unavailable-scenario{border-top:3px solid #bd2028}</style></head>
+<body>
+
+<div id="tv-angle-calculator">
+<h3>Поворот телевизора — вид сверху</h3>
+<div class="viz-controls">
+<div><label class="form-label" for="diag">Диагональ, дюймы</label><input class="form-control" id="diag" type="number" min="20" max="120" step="0.1" value="55"><label class="form-check"><input class="form-check-input" id="precise" type="checkbox" aria-controls="precise-fields"><span class="form-check-label">УТОЧНИТЬ</span></label><div id="precise-fields" hidden><label class="form-label" for="tv-width">Ширина ТВ, см</label><input class="form-control" id="tv-width" type="number" min="10" max="400" step="any" value="122.5"><label class="form-label" for="tv-height">Высота ТВ, см</label><input class="form-control" id="tv-height" type="number" min="10" max="300" step="any" value="74"><div class="text-small">Габариты корпуса без ножек. Поворот сверху зависит от ширины; высота на него не влияет.</div></div></div>
+<label class="form-label">Угол → центр крепления, см<input class="form-control" id="mount" type="number" min="10" max="600" step="1" value="130"></label>
+<label class="form-label">Угол → центр глаз, см<input class="form-control" id="eyes" type="number" min="10" max="600" step="1" value="130"></label>
+<label class="form-label">Максимальный вылет от стены, см<input class="form-control" id="reach" type="number" min="5" max="200" step="0.5" value="42"></label>
+</div>
+<div id="dimensions" class="text-small" aria-live="polite"></div>
+<div id="error" role="alert"></div>
+<div class="text-small">Линия — телевизор · пунктир — взгляд · тонкий отрезок — крепление → центр ТВ</div>
+<div id="plans"></div><p class="text-small">УГОЛ — отклонение взгляда от перпендикуляра к экрану: 0° означает просмотр прямо. ДО ГЛАЗ — расстояние до центра телевизора в плане, без разницы высот. Вылет — радиус перемещения центра ТВ от настенного крепления, а не расстояние до стены при любом положении рычага. Расчёт приближённый: не учитывает ограничения шарниров и прочность крепежа. Ширина для 55″ и 65″ соответствует Philips OLED910; для других диагоналей — оценка по формату 16:9 с рамкой.</p>
+<style>#tv-angle-calculator #plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));gap:24px;margin-top:20px}#tv-angle-calculator svg{width:100%;display:block}#tv-angle-calculator svg text{fill:var(--foreground);font-size:12px}#tv-angle-calculator .metrics{min-height:5em}</style>
+<script>
+(()=>{
+const root=document.getElementById('tv-angle-calculator'),out=root.querySelector('#plans'),fmt=x=>x.toFixed(1).replace('.',','),deg=x=>x*180/Math.PI,halfPi=Math.PI/2;
+function solve(D,A,B,L,customWidth){
+const W=customWidth??(D===55?122.5:D===65?144.4:D*2.54*16/Math.sqrt(337)+1),h=W/2,t=2.8,g=2,R=Math.hypot(h,t),phi=Math.atan2(t,h);
+function pose(x,y,force){const target=Math.atan2(x,B-y),d=Math.hypot(x,B-y);let max=y-g>=R?halfPi:Math.asin(Math.max(-1,Math.min(1,(y-g)/R)))-phi;let min=x-g>=R?0:Math.acos(Math.max(-1,Math.min(1,(x-g)/R)))+phi;min=Math.max(0,min);max=Math.min(halfPi,max);const feasible=y>=g+t&&x>=g+t&&min<=max&&y<B;let a=force===undefined?Math.max(min,Math.min(max,target)):force;if(!Number.isFinite(a))a=0;const gapY=y-h*Math.sin(a)-t*Math.cos(a),gapX=x-h*Math.cos(a)-t*Math.sin(a);return{x,y,a,d,e:Math.abs(target-a),r:Math.hypot(x-A,y),gapY,gapX,ok:feasible&&gapY>=g-1e-7&&gapX>=g-1e-7};}
+let best=null,near=null;for(let i=0;i<=680;i++){const b=(-80+i*.25)*Math.PI/180;for(let j=1;j<=60;j++){const r=L*j/60,v=pose(A-r*Math.sin(b),r*Math.cos(b));if(!v.ok)continue;if(!near||v.d<near.d)near=v;if(!best||v.e<best.e-1e-5||(Math.abs(v.e-best.e)<=1e-5&&v.d<best.d))best=v;}}
+let face=null;for(let i=1;i<9000;i++){const a=i*Math.PI/18000,s=Math.sin(a),c=Math.cos(a);const low=(h*c+t*s+g)/s,high=(B-h*s-t*c-g)/c;if(high<low)continue;const d=Math.max(low,Math.min(high,A*s+B*c));const v=pose(d*s,B-d*c,a);if(!face||v.r<face.r)face=v;}
+const direct=pose(A,L),idealR=Math.min(L,Math.max(0,Math.hypot(A,B)-1));const ideal=pose(A-idealR*A/Math.hypot(A,B),idealR*B/Math.hypot(A,B));
+return{W,rows:[...(best?[{...best,title:'Минимальный угол взгляда',group:'real'}]:[]),...(near?[{...near,title:'Минимальное расстояние до глаз',group:'real'}]:[]),face?{...face,title:'Точно лицом к человеку',ok:face.r<=L+.001,face:true,group:'potential'}:{...direct,title:'Точно лицом к человеку',ok:false,noFace:true,group:'potential'}, {...pose(A,L,halfPi),title:'Экран под 90° к стене',ninety:true,group:'potential'},{...direct,title:'Рычаг перпендикулярно стене',group:'potential'}]};}
+
+function draw(){const ids=['diag','mount','eyes','reach'],els=ids.map(id=>root.querySelector('#'+id));const precise=root.querySelector('#precise').checked,extra=[root.querySelector('#tv-width'),root.querySelector('#tv-height')];root.querySelector('#precise-fields').hidden=!precise;els[0].disabled=precise;const active=precise?[...els.slice(1),...extra]:els;if(active.some(e=>e.value===''||!e.checkValidity())){root.querySelector('#error').textContent='Введите числа в пределах диапазонов полей.';out.innerHTML='';return;}root.querySelector('#error').textContent='';const[D,A,B,L]=els.map(e=>+e.value),{W,rows}=solve(D,A,B,L,precise?+extra[0].value:undefined);const H=precise?+extra[1].value:D===55?74:D===65?86.3:D*2.54*9/Math.sqrt(337)+1;root.querySelector('#dimensions').textContent=(precise?'Корпус: ':'Корпус ≈ ')+fmt(W)+' × '+fmt(H)+' см (Ш × В) · толщина 5,6 см · зазор до стен 2 см';out.innerHTML='';out.dataset.firstDistance=rows.find(r=>r.group==='real')?.d??'';
+const corners=r=>{let p=[];for(const u of [-W/2,W/2])for(const v of [-2.8,2.8])p.push([r.x+u*Math.cos(r.a)-v*Math.sin(r.a),r.y+u*Math.sin(r.a)+v*Math.cos(r.a)]);return p};const points=rows.flatMap(corners).concat([[0,0],[A,0],[0,B]]),xmin=Math.min(0,...points.map(p=>p[0])),xmax=Math.max(A,...points.map(p=>p[0])),ymin=Math.min(0,...points.map(p=>p[1])),ymax=Math.max(B,...points.map(p=>p[1]));
+let group='';if(!rows.some(r=>r.group==='real')){out.innerHTML='<header class="scenario-heading"><h2>Реальные сценарии</h2><p class="blocked">При этих размерах допустимых положений не найдено.</p></header>';}
+rows.forEach(r=>{if(r.group!==group){group=r.group;const heading=document.createElement('header');heading.className='scenario-heading';heading.innerHTML=group==='real'?'<h2>Реальные сценарии</h2><p>Оптимальные положения в пределах заданного вылета и с зазором 2 см до стен. Возможности шарниров проверяются отдельно.</p>':'<h2>Потенциалы</h2><p>Желаемые и контрольные положения. Красные варианты сейчас недоступны.</p>';out.appendChild(heading);}const section=document.createElement('section');out.appendChild(section);const issues=[];if(r.r>L+.001)issues.push('Не хватает вылета: '+fmt(r.r-L)+' см (нужно '+fmt(r.r)+' см, задано '+fmt(L)+' см)');if(r.gapY<2-.001)issues.push(r.gapY<0?'Телевизор пересекает стену на '+fmt(-r.gapY)+' см':'До стены всего '+fmt(r.gapY)+' см вместо зазора 2 см');if(r.gapX<2-.001)issues.push(r.gapX<0?'Телевизор пересекает соседнюю стену на '+fmt(-r.gapX)+' см':'До соседней стены менее 2 см');if(r.ninety&&r.gapY<2)issues.push('Для 90° центр должен быть минимум в '+fmt(W/2+2)+' см от стены');if(r.noFace)issues.push('Не хватает места между стенами для этого положения');if(!r.ok&&!issues.length)issues.push('Не выполняются ограничения положения в комнате');const status=r.ok?'ДОСТУПНО по геометрии':'НЕДОСТУПНО';section.className=r.ok?'available-scenario':'unavailable-scenario';section.innerHTML='<h3>'+r.title+'</h3><div class="metrics text-small">Экран к стене: '+fmt(deg(r.a))+'° · взгляд сбоку: '+fmt(deg(r.e))+'°<br>До глаз: '+fmt(r.d)+' см · от стены: '+fmt(r.y)+' см<br>'+(r.face?'Минимально нужный вылет: ':'Вылет от крепления: ')+fmt(r.r)+' см<br>'+'<strong class="'+(r.ok?'available':'blocked')+'">'+status+'</strong>'+'</div>'+(issues.length?'<div class="blocked reasons">'+issues.join('<br>')+'</div>':'');const width=section.clientWidth,scale=(width-70)/Math.max(xmax-xmin,1),height=160+(ymax-ymin)*scale,px=x=>35+(x-xmin)*scale,py=y=>40+(y-ymin)*scale,P=(x,y)=>px(x)+','+py(y),co=corners(r),color=r.ok?'var(--viz-series-1)':'#bd2028';const polygon=[co[0],co[2],co[3],co[1]].map(p=>P(...p)).join(' ');section.innerHTML+='<svg role="img" aria-label="'+r.title+'; '+status+'" viewBox="0 0 '+width+' '+height+'"><path d="M '+P(0,ymax)+' L '+P(0,0)+' L '+P(xmax,0)+'" fill="none" stroke="var(--foreground)" stroke-width="2"/><path d="M '+P(A,0)+' L '+P(r.x,r.y)+'" stroke="var(--muted-foreground)" stroke-width="2"/><path d="M '+P(0,B)+' L '+P(r.x,r.y)+'" stroke="var(--muted-foreground)" stroke-dasharray="5 4"/><polygon points="'+polygon+'" fill="'+color+'"/><circle cx="'+px(A)+'" cy="'+py(0)+'" r="4" fill="var(--foreground)"/><circle cx="'+px(0)+'" cy="'+py(B)+'" r="5" fill="var(--foreground)"/><text x="'+px(0)+'" y="'+(py(0)-15)+'">Угол</text><text text-anchor="end" x="'+px(A)+'" y="'+(py(0)-3)+'">Крепление</text><text x="'+(px(0)+8)+'" y="'+(py(B)+20)+'">Глаза</text><g><text style="font-size:12px" x="20" y="'+(height-43)+'">УГОЛ</text><text style="font-size:26px;font-weight:500" x="20" y="'+(height-12)+'">'+fmt(deg(r.e))+'°</text><text style="font-size:12px" x="'+(width/2)+'" y="'+(height-43)+'">ДО ГЛАЗ</text><text style="font-size:26px;font-weight:500" x="'+(width/2)+'" y="'+(height-12)+'">'+fmt(r.d)+' см</text></g></svg>';});}
+let manualSize=false;root.querySelectorAll('input').forEach(e=>e.addEventListener('input',()=>{if(e.id==='tv-width'||e.id==='tv-height')manualSize=true;if(e.id==='precise'&&e.checked&&!manualSize){const d=+root.querySelector('#diag').value||55;root.querySelector('#tv-width').value=(d===55?122.5:d===65?144.4:d*2.54*16/Math.sqrt(337)+1).toFixed(1);root.querySelector('#tv-height').value=(d===55?74:d===65?86.3:d*2.54*9/Math.sqrt(337)+1).toFixed(1);}draw();}));let prev=0;new ResizeObserver(()=>{if(Math.abs(root.clientWidth-prev)>1){prev=root.clientWidth;draw()}}).observe(root);draw();
+})();
+</script>
+<section id="size-guide" aria-labelledby="size-guide-title">
+<h2 id="size-guide-title">Какая диагональ подойдёт?</h2>
+<p>Сравните, какую часть поля зрения займёт экран. Выберите диагональ — схемы выше пересчитаются.</p>
+<div class="guide-controls"><label for="view-distance">От глаз до центра экрана, см<input id="view-distance" type="number" min="30" max="1000" step="any" value="145"></label><button type="button" id="use-scenario-distance">Взять расстояние из первого сценария</button></div>
+<div id="guide-summary" aria-live="polite"></div>
+<div class="guide-key"><span>30° — спокойный охват</span><span>40° — ориентир для кино</span><span>50° и больше — сильное погружение</span></div>
+<div id="size-options"></div>
+<p class="guide-note">Охват экрана — угол между его краями, а не «взгляд сбоку» на схемах. Здесь расчёт для прямого взгляда на экран 16:9. 40° — ориентир, а не предел допустимого; удобный размер зависит от предпочтений. Ориентир Sony для близкого просмотра 4K (1,5 высоты экрана) относится к детализации, а не к гарантированному комфорту.</p>
+<p class="guide-sources">Источники: <a href="https://www.samsung.com/sg/tvs/tv-buying-guide/what-size-tv-should-i-get/" target="_blank" rel="noopener noreferrer">Samsung: охват 40°</a> · <a href="https://www.sony.com/electronics/support/articles/00008601" target="_blank" rel="noopener noreferrer">Sony: расстояние для 4K</a></p>
+</section>
+<style>
+#size-guide{margin-top:44px;padding-top:24px;border-top:2px solid #d7dfe7}#size-guide h2{font-size:24px;margin:0 0 12px}#size-guide p{font-size:14px;line-height:1.6;color:#526171}#size-guide .guide-controls{display:flex;flex-wrap:wrap;gap:16px;align-items:end;margin:20px 0}#size-guide label{display:grid;gap:8px;font-size:14px}#size-guide input{padding:10px;border:1px solid #b3c2d1;border-radius:6px;font:inherit;width:170px}#size-guide button{padding:10px 14px;border:1px solid #b3c2d1;background:#fff;color:#17212b;border-radius:6px;font:inherit;cursor:pointer}#size-guide button[aria-pressed="true"]{background:#087ea4;color:#fff;border-color:#087ea4}#guide-summary{font-size:16px;line-height:1.5;margin-bottom:18px}#size-guide .guide-key{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:#526171;margin-bottom:12px}#size-guide .size-row{display:grid;grid-template-columns:76px 1fr 55px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0f3}#size-guide .fov-track{height:14px;background:#edf3f7;position:relative;border-radius:3px}#size-guide .fov-bar{height:100%;background:#5297b0;border-radius:3px}#size-guide .chosen .fov-bar{background:#087ea4}#size-guide .fov-marker{position:absolute;top:-4px;bottom:-4px;width:2px;background:#526171;left:44.444%}#size-guide .range-meta{font-size:13px;color:#526171;margin-top:8px;line-height:1.5}#size-guide .angle-value{font-size:18px;font-weight:600}#size-guide a{color:#066d94}#size-guide .guide-note{margin-top:20px}
+</style>
+<script>
+(()=>{const guide=document.getElementById('size-guide'),distance=guide.querySelector('#view-distance'),list=guide.querySelector('#size-options'),summary=guide.querySelector('#guide-summary'),diag=document.getElementById('diag'),precise=document.getElementById('precise');const sizes=[43,48,50,55,65,75,77,85],f=n=>n.toFixed(1).replace('.',','),w=d=>d*2.54*16/Math.sqrt(337);
+function update(){if(!distance.checkValidity()||!distance.value){summary.textContent='Введите расстояние от 30 до 1000 см.';list.innerHTML='';return;}const cm=+distance.value;const d40=2*cm*Math.tan(20*Math.PI/180)/(2.54*16/Math.sqrt(337));const d30=2*cm*Math.tan(15*Math.PI/180)/(2.54*16/Math.sqrt(337));summary.textContent='На '+f(cm)+' см: около '+Math.round(d30)+'″ для охвата 30° и '+Math.round(d40)+'″ для 40°.';list.innerHTML='';sizes.forEach(d=>{const width=w(d),fov=2*Math.atan(width/(2*cm))*180/Math.PI,dCinema=width/(2*Math.tan(Math.PI/9))/100,dCalm=width/(2*Math.tan(Math.PI/12))/100,selected=!precise.checked&&+diag.value===d;const row=document.createElement('div');row.className='size-row'+(selected?' chosen':'');row.innerHTML='<button type="button" aria-pressed="'+selected+'" aria-label="Выбрать диагональ '+d+' дюймов">'+d+'″</button><div><div class="fov-track" role="img" aria-label="Охват '+f(fov)+' градусов, отметка 40 градусов"><div class="fov-bar" style="width:'+Math.min(100,fov/90*100)+'%"></div><span class="fov-marker"></span></div><div class="range-meta">40°: '+f(dCinema)+' м · 30°: '+f(dCalm)+' м</div></div><span class="angle-value">'+f(fov)+'°</span>';row.querySelector('button').addEventListener('click',()=>{precise.checked=false;diag.value=d;diag.dispatchEvent(new Event('input',{bubbles:true}));update();document.getElementById('plans').scrollIntoView({behavior:'smooth',block:'start'});});list.appendChild(row);});}
+distance.addEventListener('input',update);diag.addEventListener('input',update);precise.addEventListener('input',update);guide.querySelector('#use-scenario-distance').addEventListener('click',()=>{const n=+document.getElementById('plans').dataset.firstDistance;if(n>0){distance.value=n.toFixed(1);update();}else{summary.textContent='Сначала задайте параметры, при которых есть реальный сценарий.';}});update();})();
+</script>
+
+</div>
+
+</body>
+</html>
